@@ -165,20 +165,26 @@ def getErrorLogs(project):
             for line in sh.grep(GREP_PATTERN, fileToRead):
                 # On parse la chaîne pour extraire la date, l'heure et le message
                 # ---------------------------------------------------------------
-                matchObject = re.match(r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(.*).*(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)(?:, upstream: )(.*)(?:, host: )(.*)",
-                                       line,
-                                       re.M|re.I)
+                matchObject = re.match(r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(?:(.*)(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)(?:, upstream: )(.*)(?:, host: )(.*)|(.*))",
+                   line,
+                   re.M|re.I)
 
                 if matchObject:
-                    messagePresent   = False
-                    date             = matchObject.group(1)
-                    time             = matchObject.group(2)
-                    message          = matchObject.group(3)
-                    client           = matchObject.group(4)
-                    server           = matchObject.group(5)
-                    request          = matchObject.group(6)
-                    upstream         = matchObject.group(7)
-                    host             = matchObject.group(8)
+                    messagePresent = False
+                    date           = matchObject.group(1)
+                    time           = matchObject.group(2)
+                    client         = matchObject.group(4) if (matchObject.group(4)) else ""
+                    server         = matchObject.group(5) if (matchObject.group(5)) else ""
+                    request        = matchObject.group(6) if (matchObject.group(6)) else ""
+                    upstream       = matchObject.group(7) if (matchObject.group(7)) else ""
+                    host           = matchObject.group(8) if (matchObject.group(8)) else ""
+
+                    if matchObject.group(3):
+                        message = matchObject.group(3)
+                    else:
+                        if matchObject.group(9):
+                            message = matchObject.group(9)
+                    
                     currentIndex     = 0
                     linesArrayNumber = len(linesArray)
 
