@@ -267,7 +267,7 @@ def main():
     errors = ""
     for project in PROJECTS:
         errors += getErrorLogs(project)
-    print(errors)
+    # print(errors)
 
     # TODO: Envoyer les erreurs par Slack
     # -----------------------------------
