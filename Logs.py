@@ -165,7 +165,7 @@ def getErrorLogs(project):
             for line in sh.grep(GREP_PATTERN, fileToRead):
                 # On parse la chaîne pour extraire la date, l'heure et le message
                 # ---------------------------------------------------------------
-                matchObject = re.match(r"(\d{4}/\d{2}/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(.*).*",
+                matchObject = re.match(r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(.*).*(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)(?:, upstream: )(.*)(?:, host: )(.*)",
                                        line,
                                        re.M|re.I)
 
@@ -174,6 +174,11 @@ def getErrorLogs(project):
                     date             = matchObject.group(1)
                     time             = matchObject.group(2)
                     message          = matchObject.group(3)
+                    client           = matchObject.group(4)
+                    server           = matchObject.group(5)
+                    request          = matchObject.group(6)
+                    upstream         = matchObject.group(7)
+                    host             = matchObject.group(8)
                     currentIndex     = 0
                     linesArrayNumber = len(linesArray)
 
@@ -267,13 +272,9 @@ def main():
     # TODO: Envoyer les erreurs par Slack
     # -----------------------------------
     if len(errors) != 0:
-        content = "Log sur " + serverName + " du " + YESTERDAY + "\n"
-        content += "-" * 80 + "\n"
-        content += errors
-
         # Envoi du mail
         # -------------
-        sendMail(serverName, content)
+        sendMail(serverName, errors)
 
     # Fermeture du programme
     # ----------------------
