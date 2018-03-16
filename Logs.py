@@ -25,7 +25,7 @@ LOGS_PATH        = ""
 FILE_SUFIX       = "-error.log"
 DATE_LOG_FORMAT  = "%Y/%m/%d"
 YESTERDAY        = date.strftime(date.today() - timedelta(1), DATE_LOG_FORMAT)
-GREP_PATTERN     = YESTERDAY + ".*Fatal error"
+GREP_PATTERN     = YESTERDAY + ".*\(Fatal error\|timed out\|No database selected\)"
 EMAIL_FROM       = ""
 DEVELOPERS_EMAIL = [
     "mon-email",
@@ -60,7 +60,7 @@ def getFileName(project):
 
     return LOGS_PATH + project + FILE_SUFIX
 
-def displayLine(date, number, timeStart, timeEnd, message):
+def displayLine(number, timeStart, timeEnd, message):
     """
         Affichage des lignes de log
         ===========================
@@ -80,7 +80,7 @@ def displayLine(date, number, timeStart, timeEnd, message):
         :rtype:  string
     """
 
-    return "{:>4d}" . format(number) + " x " + date + "[" + timeStart + " - " + timeEnd + "] " + message + "\n"
+    return "{:>4d}" . format(number) + " x [" + timeStart + " - " + timeEnd + "] " + message + "\n"
 
 def displayProject(project, linesNumber, linesArray):
     """
@@ -120,7 +120,6 @@ def displayProject(project, linesNumber, linesArray):
         
         for line in linesArray:
             error += displayLine(line["number"],
-                                 line["date"],
                                  line["timeStart"],
                                  line["timeEnd"],
                                  line["message"])
@@ -166,7 +165,7 @@ def getErrorLogs(project):
             for line in sh.grep(GREP_PATTERN, fileToRead):
                 # On parse la chaîne pour extraire la date, l'heure et le message
                 # ---------------------------------------------------------------
-                matchObject = re.match(r"(\d{4}/\d{2}/\d{2})\s(\d{2}:\d{2}:\d{2}).*PHP Fatal error: (.*).*",
+                matchObject = re.match(r"(\d{4}/\d{2}/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(.*).*",
                                        line,
                                        re.M|re.I)
 
