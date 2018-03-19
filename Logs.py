@@ -11,14 +11,17 @@
 
 import sys
 import sh
-from datetime import date, timedelta
+import re
+import config
+import smtplib
 from os import path
 from io import StringIO
-import re
-import smtplib
 from email.message import EmailMessage
 from colorama import init, Fore, Back, Style
-import config
+
+# TODO: Amériorer configuration
+# - paramètres SMTP
+# - paramètres Slack
 
 # =========
 # Fonctions
@@ -143,9 +146,12 @@ def getErrorLogs(project):
             for line in sh.grep(config.GREP_PATTERN, fileToRead):
                 # On parse la chaîne pour extraire la date, l'heure et le message
                 # ---------------------------------------------------------------
-                matchObject = re.match(r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(?:(.*)(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)(?:, upstream: )(.*)(?:, host: )(.*)|(.*))",
-                   line,
-                   re.M|re.I)
+                matchObject = re.match(r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*"
+                                       "(?:PHP Fatal error:  |timed out |No database selected )"
+                                       "(?:(.*)(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)"
+                                       "(?:, upstream: )(.*)(?:, host: )(.*)|(.*))",
+                                       line,
+                                       re.M|re.I)
 
                 if matchObject:
                     messagePresent = False
@@ -263,7 +269,7 @@ def main():
     else:
         serverName = arguments[1]
 
-        if not arguments[1] in config.SERVERS:
+        if not serverName or not arguments[1] in config.SERVERS:
             print(Fore.RED + "[Erreur]" + Style.RESET_ALL + " Le nom du serveur n'est pas valide " + str(SERVERS) + "\n")
             sys.exit(-2)
             
@@ -273,14 +279,18 @@ def main():
     projects = config.PROJECTS.sort()
     for project in config.PROJECTS:
         errors += getErrorLogs(project)
-    # print(errors)
+    print(errors)
 
-    # TODO: Envoyer les erreurs par Slack
-    # -----------------------------------
+    # Envoi les erreurs par mail et/ou Slack
+    # --------------------------------------
     if len(errors) != 0:
-        # Envoi du mail
-        # -------------
-        sendMail(serverName, errors)
+        if "mail" in config.SENDING_TYPE:
+            # Envoi du mail
+            # -------------
+            sendMail(serverName, errors)
+        if "slack" in config.SENDING_TYPE:
+            # TODO: Envoi par Slack
+            # ---------------------
 
     # Fermeture du programme
     # ----------------------
