@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*
+
+from datetime import date, timedelta
+
+LOGS_PATH        = ""
+FILE_SUFIX       = "-error.log"
+DATE_LOG_FORMAT  = "%Y/%m/%d"
+YESTERDAY        = date.strftime(date.today() - timedelta(1), DATE_LOG_FORMAT)
+GREP_PATTERN     = YESTERDAY + ".*\(Fatal error\|timed out\|No database selected\)"
+EMAIL_FROM       = ""
+DEVELOPERS_EMAIL = [
+    "mon-email",
+]
+
+# Liste des projets
+PROJECTS = [
+    "mon-project"
+]
+
+# Liste des serveurs
+SERVERS = [
+    "ovh"
+]

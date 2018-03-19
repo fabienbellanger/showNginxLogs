@@ -18,29 +18,7 @@ import re
 import smtplib
 from email.message import EmailMessage
 from colorama import init, Fore, Back, Style
-
-# ==========
-# Constantes
-# ==========
-LOGS_PATH        = ""
-FILE_SUFIX       = "-error.log"
-DATE_LOG_FORMAT  = "%Y/%m/%d"
-YESTERDAY        = date.strftime(date.today() - timedelta(1), DATE_LOG_FORMAT)
-GREP_PATTERN     = YESTERDAY + ".*\(Fatal error\|timed out\|No database selected\)"
-EMAIL_FROM       = ""
-DEVELOPERS_EMAIL = [
-    "mon-email",
-]
-
-# Liste des projets
-PROJECTS = [
-    "mon-project"
-]
-
-# Liste des serveurs
-SERVERS = [
-    "ovh"
-]
+import config
 
 # =========
 # Fonctions
@@ -59,7 +37,7 @@ def getFileName(project):
         :rtype:  string
     """
 
-    return LOGS_PATH + project + FILE_SUFIX
+    return config.LOGS_PATH + project + config.FILE_SUFIX
 
 def displayLine(number, timeStart, timeEnd, message):
     """
@@ -162,7 +140,7 @@ def getErrorLogs(project):
             lineArray    = {}
             linesNumber  = 0
 
-            for line in sh.grep(GREP_PATTERN, fileToRead):
+            for line in sh.grep(config.GREP_PATTERN, fileToRead):
                 # On parse la chaîne pour extraire la date, l'heure et le message
                 # ---------------------------------------------------------------
                 matchObject = re.match(r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*(?:PHP Fatal error:  |timed out |No database selected )(?:(.*)(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)(?:, upstream: )(.*)(?:, host: )(.*)|(.*))",
@@ -243,9 +221,9 @@ def sendMail(serverName, content):
     msg = EmailMessage()
     msg.set_content(content)
     
-    msg["Subject"] = "[" + serverName + "] Logs erreurs du " + YESTERDAY
-    msg["From"]    = EMAIL_FROM
-    msg["To"]      = DEVELOPERS_EMAIL
+    msg["Subject"] = "[" + serverName + "] Logs erreurs du " + config.YESTERDAY
+    msg["From"]    = config.EMAIL_FROM
+    msg["To"]      = config.DEVELOPERS_EMAIL
 
     # Envoi du message
     # ----------------
@@ -285,15 +263,15 @@ def main():
     else:
         serverName = arguments[1]
 
-        if not arguments[1] in SERVERS:
+        if not arguments[1] in config.SERVERS:
             print(Fore.RED + "[Erreur]" + Style.RESET_ALL + " Le nom du serveur n'est pas valide " + str(SERVERS) + "\n")
             sys.exit(-2)
             
     # Gestion des erreurs
     # -------------------
     errors   = ""
-    projects = PROJECTS.sort()
-    for project in PROJECTS:
+    projects = config.PROJECTS.sort()
+    for project in config.PROJECTS:
         errors += getErrorLogs(project)
     # print(errors)
 
