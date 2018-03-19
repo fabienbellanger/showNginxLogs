@@ -4,9 +4,9 @@
 """
     Script permettant de recevoir quotidiennement les erreurs NGINX de tous les projets par mail et/ou slack
 
-    Auteur                : Fabien Bellanger
+    Author                : Fabien Bellanger
     Date de création      : 2018-03-12
-    Dernière modification : 2018-03-16
+    Dernière modification : 2018-03-19
 """
 
 import sys
@@ -50,7 +50,7 @@ def getFileName(project):
         Retourne le nom du fichier à lire
         =================================
 
-        Auteur : Fabien Bellanger
+        Author: Fabien Bellanger
 
         :param project: Nom du projet
         :type project: string
@@ -66,7 +66,7 @@ def displayLine(number, timeStart, timeEnd, message):
         Affichage des lignes de log
         ===========================
 
-        Auteur : Fabien Bellanger
+        Author: Fabien Bellanger
 
         :param number:    Nombre de fois où l'erreur est survenue
         :type project:    string
@@ -88,7 +88,7 @@ def displayProject(project, linesNumber, linesArray):
         Affichage des erreurs par projet
         ================================
 
-        Auteur : Fabien Bellanger
+        Author: Fabien Bellanger
 
         :param project:     Nom du projet
         :type project:      string
@@ -132,7 +132,7 @@ def getErrorLogs(project):
         Récupération des logs d"erreurs
         ===============================
 
-        Auteur : Fabien Bellanger
+        Author: Fabien Bellanger
 
         :param project: Nom du projet
         :type project: string
@@ -183,12 +183,11 @@ def getErrorLogs(project):
                         message = matchObject.group(3)
                     elif matchObject.group(9):
                         message = matchObject.group(9)
-                    
+
+                    # Un message est-il déjà dans le tableau ?
                     currentIndex     = 0
                     linesArrayNumber = len(linesArray)
 
-                    # Un message est-il déjà dans le tableau ?
-                    # ----------------------------------------
                     while not (currentIndex == linesArrayNumber or linesArray[currentIndex]["message"] == message):
                         currentIndex += 1
                     
@@ -234,7 +233,8 @@ def sendMail(serverName, content):
         Envoi du mail
         =============
 
-        Auteur : Fabien Bellanger
+        Author: Fabien Bellanger
+
         :param serverName:  Nom du serveur
         :type serverName:   string
         :param content:     Contenu du mail
@@ -247,7 +247,8 @@ def sendMail(serverName, content):
     msg["From"]    = EMAIL_FROM
     msg["To"]      = DEVELOPERS_EMAIL
 
-    # Send the message via our own SMTP server
+    # Envoi du message
+    # ----------------
     with smtplib.SMTP("localhost") as s:
         s.send_message(msg)
         s.quit()
@@ -259,7 +260,7 @@ def main():
 
         On parcours tous les fichiers et on récupère ceux ayant une "Fatal error" PHP
 
-        Auteur : Fabien Bellanger
+        Author: Fabien Bellanger
     """
 
     # Initialisation de colorama
@@ -269,11 +270,11 @@ def main():
     # Titre
     # -----
     print()
-    print(Fore.YELLOW + " |======================================|")
-    print(Fore.YELLOW + " | Envoi des erreurs NGINX de la veille |")
-    print(Fore.YELLOW + " |--------------------------------------|")
-    print(Fore.YELLOW + " | Fabien Bellanger                     |")
-    print(Fore.YELLOW + " |======================================|\n")
+    print(Fore.YELLOW + " |=============================================|")
+    print(Fore.YELLOW + " | Envoi des logs d'erreurs NGINX de la veille |")
+    print(Fore.YELLOW + " |---------------------------------------------|")
+    print(Fore.YELLOW + " | Fabien Bellanger                            |")
+    print(Fore.YELLOW + " |=============================================|\n")
 
     # Récupération des arguments
     # --------------------------
@@ -305,6 +306,7 @@ def main():
 
     # Fermeture du programme
     # ----------------------
+    print()
     sys.exit(0)
 
 # ===================
