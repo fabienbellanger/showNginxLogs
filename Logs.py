@@ -215,11 +215,17 @@ def getErrorLogs(project):
             error += displayProject(project, linesNumber, linesArray)
 
         except sh.ErrorReturnCode_1:
-            print(Fore.RED + "[Erreur]" + Fore.GREEN + " [" + project + "]" + Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
+            print(Fore.RED + "[Erreur]",
+                  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
+                  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
         except sh.ErrorReturnCode_2:
-            print(Fore.RED + "[Erreur]" + Fore.GREEN + " [" + project + "]" + Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
+            print(Fore.RED + "[Erreur]",
+                  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
+                  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
     else:
-        print(Fore.RED + "[Erreur]" + Fore.GREEN + " [" + project + "]" + Style.RESET_ALL + " : Fichiers non trouvés ou vides")
+        print(Fore.RED + "[Erreur]",
+              Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
+              Style.RESET_ALL + " : Fichiers non trouvés ou vides")
         
     return error
 
@@ -284,7 +290,8 @@ def main():
             
     # Gestion des erreurs
     # -------------------
-    errors = ""
+    errors   = ""
+    projects = PROJECTS.sort()
     for project in PROJECTS:
         errors += getErrorLogs(project)
     # print(errors)
