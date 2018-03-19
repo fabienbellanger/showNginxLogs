@@ -17,6 +17,7 @@ from io import StringIO
 import re
 import smtplib
 from email.message import EmailMessage
+from colorama import init, Fore, Back, Style
 
 # ==========
 # Constantes
@@ -150,10 +151,9 @@ def getErrorLogs(project):
     if path.isfile(filePath):
         if path.getsize(filePath) != 0:
             fileToRead = filePath
-        else:
-            if path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
-                fileToRead = oldFilePath
-    
+        elif path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
+            fileToRead = oldFilePath
+
     if len(fileToRead) > 0:
         try:
             buffer       = StringIO()
@@ -181,9 +181,8 @@ def getErrorLogs(project):
 
                     if matchObject.group(3):
                         message = matchObject.group(3)
-                    else:
-                        if matchObject.group(9):
-                            message = matchObject.group(9)
+                    elif matchObject.group(9):
+                        message = matchObject.group(9)
                     
                     currentIndex     = 0
                     linesArrayNumber = len(linesArray)
@@ -216,10 +215,12 @@ def getErrorLogs(project):
             error += displayProject(project, linesNumber, linesArray)
 
         except sh.ErrorReturnCode_1:
-            print("[Erreur] Grep sur " + filePath + " : pas de résultat")
+            print(Fore.RED + "[Erreur]" + Fore.GREEN + " [" + project + "]" + Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
         except sh.ErrorReturnCode_2:
-            print("[Erreur] Fichier(s) non trouvé(s) : " + filePath + " et/ou " + oldFilePath)
-    
+            print(Fore.RED + "[Erreur]" + Fore.GREEN + " [" + project + "]" + Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
+    else:
+        print(Fore.RED + "[Erreur]" + Fore.GREEN + " [" + project + "]" + Style.RESET_ALL + " : Fichiers non trouvés ou vides")
+        
     return error
 
 def sendMail(serverName, content):
@@ -255,17 +256,30 @@ def main():
         Auteur : Fabien Bellanger
     """
 
+    # Initialisation de colorama
+    # --------------------------
+    init()
+
+    # Titre
+    # -----
+    print()
+    print(Fore.YELLOW + " |======================================|")
+    print(Fore.YELLOW + " | Envoi des erreurs NGINX de la veille |")
+    print(Fore.YELLOW + " |--------------------------------------|")
+    print(Fore.YELLOW + " | Fabien Bellanger                     |")
+    print(Fore.YELLOW + " |======================================|\n")
+
     # Récupération des arguments
     # --------------------------
     arguments  = sys.argv
     if len(arguments) != 2:
-        print("[Erreur] Le nom du serveur n'est pas renseigné")
+        print(Fore.RED + "[Erreur]" + Style.RESET_ALL + " Le nom du serveur n'est pas renseigné\n")
         sys.exit(-1)
     else:
         serverName = arguments[1]
 
         if not arguments[1] in SERVERS:
-            print("[Erreur] Le nom du serveur n'est pas valide " + str(SERVERS))
+            print(Fore.RED + "[Erreur]" + Style.RESET_ALL + " Le nom du serveur n'est pas valide " + str(SERVERS) + "\n")
             sys.exit(-2)
             
     # Gestion des erreurs
