@@ -222,7 +222,7 @@ def sendMail(serverName, content):
 	msg = EmailMessage()
 
     # Contenu du message
-    bodyContent = "\nLogs erreurs " + serverName + " du " + config.YESTERDAY\n"
+    bodyContent = "\nLogs erreurs " + serverName + " du " + config.YESTERDAY + "\n"
     bodyContent += "-" * 80 + "\n\n"
     bodyContent += content
 	msg.set_content(bodyContent)
