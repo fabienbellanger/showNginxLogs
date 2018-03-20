@@ -220,7 +220,12 @@ def sendMail(serverName, content):
 		:type content:      string
 	"""
 	msg = EmailMessage()
-	msg.set_content(content)
+
+    # Contenu du message
+    bodyContent = "\nLogs erreurs " + serverName + " du " + config.YESTERDAY\n"
+    bodyContent += "-" * 80 + "\n\n"
+    bodyContent += content
+	msg.set_content(bodyContent)
 	
 	msg["Subject"] = "[" + serverName + "] Logs erreurs du " + config.YESTERDAY
 	msg["From"]    = config.EMAIL_FROM
@@ -283,6 +288,7 @@ def main():
 			# Envoi du mail
 			# -------------
 			sendMail(serverName, errors)
+
 		# if "slack" in config.SENDING_TYPE:
 			# TODO: Envoi par Slack
 			# ---------------------
