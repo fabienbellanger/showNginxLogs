@@ -134,7 +134,7 @@ def getErrorLogs(project):
 			fileToRead = filePath
 		elif path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
 			fileToRead = oldFilePath
-	print(fileToRead)
+	
 	if len(fileToRead) > 0:
 		try:
 			buffer       = StringIO()
@@ -146,12 +146,7 @@ def getErrorLogs(project):
 			for line in sh.grep(config.GREP_PATTERN, fileToRead):
 				# On parse la chaîne pour extraire la date, l'heure et le message
 				# ---------------------------------------------------------------
-				matchObject = re.match(r"""(.*)\s(.*).*
-									   (?:PHP Fatal error:  |timed out |No database selected )
-									   (?:(.*)(?:, client: )(.*)(?:, server: )(.*)(?:, request: )(.*)
-									   (?:, upstream: )(.*)(?:, host: )(.*)|(.*))""",
-									   line,
-									   re.M|re.I)
+				matchObject = re.match(config.GREP_REGEX, line, re.M|re.I)
 
 				if matchObject:
 					messagePresent = False
