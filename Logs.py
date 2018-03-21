@@ -149,14 +149,13 @@ def getErrorLogs(project):
 				matchObject = re.match(config.GREP_REGEX, line, re.M|re.I)
 
 				if matchObject:
-					messagePresent = False
-					date           = matchObject.group(1)
-					time           = matchObject.group(2)
-					client         = matchObject.group(4) if (matchObject.group(4)) else ""
-					server         = matchObject.group(5) if (matchObject.group(5)) else ""
-					request        = matchObject.group(6) if (matchObject.group(6)) else ""
-					upstream       = matchObject.group(7) if (matchObject.group(7)) else ""
-					host           = matchObject.group(8) if (matchObject.group(8)) else ""
+					date     = matchObject.group(1)
+					time     = matchObject.group(2)
+					client   = matchObject.group(4) if (matchObject.group(4)) else ""
+					server   = matchObject.group(5) if (matchObject.group(5)) else ""
+					request  = matchObject.group(6) if (matchObject.group(6)) else ""
+					upstream = matchObject.group(7) if (matchObject.group(7)) else ""
+					host     = matchObject.group(8) if (matchObject.group(8)) else ""
 
 					if matchObject.group(3):
 						message = matchObject.group(3)
@@ -182,8 +181,8 @@ def getErrorLogs(project):
 						linesArray.append(lineArray)
 					else:
 						# On modifie l'heure de fin et le compteur
-						linesArray[currentIndex - 1]["timeEnd"] = time
-						linesArray[currentIndex - 1]["number"]  += 1
+						linesArray[currentIndex]["timeEnd"] = time
+						linesArray[currentIndex]["number"]  += 1
 
 					# Nombre de lignes total
 					linesNumber += 1
