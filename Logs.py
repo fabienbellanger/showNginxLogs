@@ -222,12 +222,12 @@ def sendMail(serverName, content):
 	msg = EmailMessage()
 
 	# Contenu du message
-	bodyContent = "\nLogs erreurs " + serverName + " du " + config.YESTERDAY + "\n"
+	bodyContent = "\nLogs erreurs " + serverName + " du " + config.YESTERDAY_MAIL_OBJECT + "\n"
 	bodyContent += "-" * 80 + "\n\n"
 	bodyContent += content
 	msg.set_content(bodyContent)
 	
-	msg["Subject"] = "[" + serverName + "] Logs erreurs du " + config.YESTERDAY
+	msg["Subject"] = "[" + serverName + "] Logs erreurs du " + config.YESTERDAY_MAIL_OBJECT
 	msg["From"]    = config.EMAIL_FROM
 	msg["To"]      = config.DEVELOPERS_EMAIL
 
