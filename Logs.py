@@ -108,6 +108,9 @@ def displayProject(project, linesNumber, linesArray):
 
 	return error
 
+def grepFile(filePath):
+	print('grepFile')
+
 def getErrorLogs(project):
 	"""
 		Récupération des logs d"erreurs
@@ -124,68 +127,67 @@ def getErrorLogs(project):
 
 	filePath    = getFileName(project)
 	oldFilePath = filePath + ".1"
-	fileToRead  = ""
 	error       = ""
-	
+	filesToRead = []
+
 	# Les fichiers de log doivent exister et ne doivent pas être vide
 	# ---------------------------------------------------------------
-	if path.isfile(filePath):
-		if path.getsize(filePath) != 0:
-			fileToRead = filePath
-		elif path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
-			fileToRead = oldFilePath
+	if path.isfile(filePath) and path.getsize(filePath) != 0:
+		filesToRead.append(filePath)
+	if path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
+		filesToRead.append(oldFilePath)
 	
-	if len(fileToRead) > 0:
+	if len(filesToRead) > 0:
 		try:
 			buffer       = StringIO()
-			projectLines = ""
 			linesArray   = []
 			lineArray    = {}
 			linesNumber  = 0
 
-			for line in sh.grep(config.GREP_PATTERN, fileToRead):
-				# On parse la chaîne pour extraire la date, l'heure et le message
-				# ---------------------------------------------------------------
-				matchObject = re.match(config.GREP_REGEX, line, re.M|re.I)
-
-				if matchObject:
-					date     = matchObject.group(1)
-					time     = matchObject.group(2)
-					client   = matchObject.group(4) if (matchObject.group(4)) else ""
-					server   = matchObject.group(5) if (matchObject.group(5)) else ""
-					request  = matchObject.group(6) if (matchObject.group(6)) else ""
-					upstream = matchObject.group(7) if (matchObject.group(7)) else ""
-					host     = matchObject.group(8) if (matchObject.group(8)) else ""
-
-					if matchObject.group(3):
-						message = matchObject.group(3)
-					elif matchObject.group(9):
-						message = matchObject.group(9)
-
-					# Un message est-il déjà dans le tableau ?
-					currentIndex     = 0
-					linesArrayNumber = len(linesArray)
-
-					while not (currentIndex == linesArrayNumber or linesArray[currentIndex]["message"] == message):
-						currentIndex += 1
+			for fileToRead in filesToRead:
+				for line in sh.grep(config.GREP_PATTERN, fileToRead):
+					# On parse la chaîne pour extraire la date, l'heure et le message
+					# ---------------------------------------------------------------
+					matchObject = re.match(config.GREP_REGEX, line, re.M|re.I)
 					
-					if currentIndex == linesArrayNumber:
-						# Pas de message trouvé, on ajoute au tableau
-						lineArray = {
-							"date":         date,
-							"timeStart":    time,
-							"message":      message,
-							"timeEnd":      time,
-							"number":       1,
-						}
-						linesArray.append(lineArray)
-					else:
-						# On modifie l'heure de fin et le compteur
-						linesArray[currentIndex]["timeEnd"] = time
-						linesArray[currentIndex]["number"]  += 1
+					if matchObject:
+						date     = matchObject.group(1)
+						time     = matchObject.group(2)
+						client   = matchObject.group(4) if (matchObject.group(4)) else ""
+						server   = matchObject.group(5) if (matchObject.group(5)) else ""
+						request  = matchObject.group(6) if (matchObject.group(6)) else ""
+						upstream = matchObject.group(7) if (matchObject.group(7)) else ""
+						host     = matchObject.group(8) if (matchObject.group(8)) else ""
 
-					# Nombre de lignes total
-					linesNumber += 1
+						if matchObject.group(3):
+							message = matchObject.group(3)
+						elif matchObject.group(9):
+							message = matchObject.group(9)
+
+						# Un message est-il déjà dans le tableau ?
+						currentIndex     = 0
+						linesArrayNumber = len(linesArray)
+
+						while not (currentIndex == linesArrayNumber or linesArray[currentIndex]["message"] == message):
+							currentIndex += 1
+						
+						if currentIndex == linesArrayNumber:
+							# Pas de message trouvé, on ajoute au tableau
+							lineArray = {
+								"date":         date,
+								"timeStart":    time,
+								"message":      message,
+								"timeEnd":      time,
+								"number":       1,
+							}
+							linesArray.append(lineArray)
+						else:
+							# On modifie l'heure de fin et le compteur
+							linesArray[currentIndex]["timeEnd"] = time
+							linesArray[currentIndex]["number"]  += 1
+
+						# Nombre de lignes total
+						linesNumber += 1
 
 			# Ajout à la chaîne de caractères d'erreurs globale
 			# -------------------------------------------------
