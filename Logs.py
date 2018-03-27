@@ -108,9 +108,6 @@ def displayProject(project, linesNumber, linesArray):
 
 	return error
 
-def grepFile(filePath):
-	print('grepFile')
-
 def getErrorLogs(project):
 	"""
 		Récupération des logs d"erreurs
