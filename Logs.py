@@ -91,12 +91,15 @@ def displayProject(project, linesNumber, linesArray):
 	if len(linesArray) <= 1:
 		differentErrorLabel = " erreur différente"
 
-	error = ""
+	error      	    = ""
+	differentErrors = 0
 
 	if linesNumber != 0:
+		differentErrors = len(linesArray)
+
 		error += "\n" + project.title()
 		error += " (" + str(linesNumber) + totalErrorLabel
-		error += " / " + str(len(linesArray)) + differentErrorLabel + ")\n"
+		error += " / " + str(differentErrors) + differentErrorLabel + ")\n"
 		error += "-" * 80
 		error += "\n"
 		
@@ -106,7 +109,11 @@ def displayProject(project, linesNumber, linesArray):
 								 line["timeEnd"],
 								 line["message"])
 
-	return error
+	return {
+		"error":           error,
+		"totalErrors":     linesNumber,
+		"differentErrors": differentErrors,
+	}
 
 def getErrorLogs(project):
 	"""
@@ -124,7 +131,7 @@ def getErrorLogs(project):
 
 	filePath    = getFileName(project)
 	oldFilePath = filePath + ".1"
-	error       = ""
+	error       = {}
 	filesToRead = []
 
 	# Les fichiers de log doivent exister et ne doivent pas être vide
@@ -133,7 +140,7 @@ def getErrorLogs(project):
 		filesToRead.append(filePath)
 	if path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
 		filesToRead.append(oldFilePath)
-	
+
 	if len(filesToRead) > 0:
 		try:
 			buffer       = StringIO()
@@ -188,7 +195,7 @@ def getErrorLogs(project):
 
 			# Ajout à la chaîne de caractères d'erreurs globale
 			# -------------------------------------------------
-			error += displayProject(project, linesNumber, linesArray)
+			error = displayProject(project, linesNumber, linesArray)
 
 		except sh.ErrorReturnCode_1:
 			print(Fore.RED + "[Erreur]",
@@ -235,6 +242,33 @@ def sendMail(serverName, content):
 		s.send_message(msg)
 		s.quit()
 
+def showSummary(summaryInfo):
+	summaryString = ""
+
+	if len(summaryInfo) > 0:
+		globalTotal      = 0
+		globalDifferents = 0
+
+		# Entête
+		print(Fore.GREEN)
+		print("|" + "=" * 70 + "|")
+		print("| {:<30s}" . format("Projets") + " | {:^16s}" . format("Différentes") + " | {:^16s}" . format("Totales") + " |")
+		print("|" + "=" * 70 + "|")
+
+		for line in summaryInfo:
+			print("| {:<30s}" . format(line["project"]) + " | {:^16d}" . format(line["differentErrors"]) + " | {:^16d}" . format(line["totalErrors"]) + " |")
+			
+			# Calcul des totaux
+			globalTotal 	 += line["totalErrors"]
+			globalDifferents += line["differentErrors"]
+		
+		# Pied de page
+		print("|" + "=" * 70 + "|")
+		print("| {:<30s}" . format("Total") + " | {:^16d}" . format(globalDifferents) + " | {:^16d}" . format(globalTotal) + " |")
+		print("|" + "=" * 70 + "|")
+
+	return summaryString
+
 def main():
 	"""
 		Traitement principal
@@ -273,11 +307,25 @@ def main():
 			
 	# Gestion des erreurs
 	# -------------------
-	errors   = ""
-	projects = config.PROJECTS.sort()
+	errors      = ""
+	projects    = config.PROJECTS.sort()
+	summaryInfo = []
 	for project in config.PROJECTS:
-		errors += getErrorLogs(project)
+		tabErrors = getErrorLogs(project)
+		if (tabErrors):
+			errors += tabErrors["error"]
+
+			# Informations pour le résumé
+			summaryInfo.append({
+				"project":         project,
+				"totalErrors":     tabErrors["totalErrors"],
+				"differentErrors": tabErrors["differentErrors"],
+			})
 	print(errors)
+
+	# Affichage du résumé
+	# -------------------
+	showSummary(summaryInfo)
 
 	# Envoi les erreurs par mail et/ou Slack
 	# --------------------------------------
