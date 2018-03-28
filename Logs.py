@@ -140,7 +140,7 @@ def getErrorLogs(project):
 		filesToRead.append(filePath)
 	if path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
 		filesToRead.append(oldFilePath)
-	print(filesToRead)
+	
 	if len(filesToRead) > 0:
 		
 		buffer       = StringIO()
@@ -202,8 +202,6 @@ def getErrorLogs(project):
 				print(Fore.RED + "[Erreur]",
 					  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
 					  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
-
-		print(fileToRead, linesArray)
 		
 		# Ajout à la chaîne de caractères d'erreurs globale
 		# -------------------------------------------------
