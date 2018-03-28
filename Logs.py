@@ -140,20 +140,21 @@ def getErrorLogs(project):
 		filesToRead.append(filePath)
 	if path.isfile(oldFilePath) and path.getsize(oldFilePath) != 0:
 		filesToRead.append(oldFilePath)
-
+	print(filesToRead)
 	if len(filesToRead) > 0:
-		try:
-			buffer       = StringIO()
-			linesArray   = []
-			lineArray    = {}
-			linesNumber  = 0
+		
+		buffer       = StringIO()
+		linesArray   = []
+		lineArray    = {}
+		linesNumber  = 0
 
-			for fileToRead in filesToRead:
+		for fileToRead in filesToRead:
+			try:
 				for line in sh.grep(config.GREP_PATTERN, fileToRead):
 					# On parse la chaîne pour extraire la date, l'heure et le message
 					# ---------------------------------------------------------------
 					matchObject = re.match(config.GREP_REGEX, line, re.M|re.I)
-					
+
 					if matchObject:
 						date     = matchObject.group(1)
 						time     = matchObject.group(2)
@@ -193,18 +194,20 @@ def getErrorLogs(project):
 						# Nombre de lignes total
 						linesNumber += 1
 
-			# Ajout à la chaîne de caractères d'erreurs globale
-			# -------------------------------------------------
-			error = displayProject(project, linesNumber, linesArray)
+			except sh.ErrorReturnCode_1:
+				print(Fore.RED + "[Erreur]",
+					  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
+					  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
+			except sh.ErrorReturnCode_2:
+				print(Fore.RED + "[Erreur]",
+					  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
+					  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
 
-		except sh.ErrorReturnCode_1:
-			print(Fore.RED + "[Erreur]",
-				  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
-				  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
-		except sh.ErrorReturnCode_2:
-			print(Fore.RED + "[Erreur]",
-				  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
-				  Style.RESET_ALL + " : Fichier non trouvé ou vide ou bien pas de résultat")
+		print(fileToRead, linesArray)
+		
+		# Ajout à la chaîne de caractères d'erreurs globale
+		# -------------------------------------------------
+		error = displayProject(project, linesNumber, linesArray)
 	else:
 		print(Fore.RED + "[Erreur]",
 			  Fore.GREEN + "{:<30s}" . format("[" + project + "]"),
@@ -256,11 +259,12 @@ def showSummary(summaryInfo):
 		print("|" + "=" * 70 + "|")
 
 		for line in summaryInfo:
-			print("| {:<30s}" . format(line["project"]) + " | {:^16d}" . format(line["differentErrors"]) + " | {:^16d}" . format(line["totalErrors"]) + " |")
-			
-			# Calcul des totaux
-			globalTotal 	 += line["totalErrors"]
-			globalDifferents += line["differentErrors"]
+			if line["totalErrors"] > 0:
+				print("| {:<30s}" . format(line["project"]) + " | {:^16d}" . format(line["differentErrors"]) + " | {:^16d}" . format(line["totalErrors"]) + " |")
+
+				# Calcul des totaux
+				globalTotal 	 += line["totalErrors"]
+				globalDifferents += line["differentErrors"]
 		
 		# Pied de page
 		print("|" + "=" * 70 + "|")
@@ -325,7 +329,8 @@ def main():
 
 	# Affichage du résumé
 	# -------------------
-	showSummary(summaryInfo)
+	if len(errors) != 0:
+		showSummary(summaryInfo)
 
 	# Envoi les erreurs par mail et/ou Slack
 	# --------------------------------------
