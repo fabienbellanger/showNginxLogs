@@ -8,7 +8,7 @@ FILE_SUFIX            = "-error.log"
 DATE_LOG_FORMAT       = "%Y/%m/%d"
 DATE_LOG              = date.strftime(date.today() - timedelta(1), DATE_LOG_FORMAT)
 DATE_LOG_MAIL_OBJECT  = date.strftime(date.today() - timedelta(1), "%d/%m/%Y")
-GREP_PATTERN          = DATE_LOG + ".*\(Fatal error\|Warning\|timed out\|No database selected\|PHP message\)"
+GREP_PATTERN          = DATE_LOG + ".*\(Fatal error\|Warning\|timed out\|No database selected\|message: \[Fab\]\)"
 GREP_REGEX            = r"(\d{4}\/\d{2}\/\d{2})\s(\d{2}:\d{2}:\d{2}).*"\
 						 "(?:PHP Fatal error:  |PHP Warning:  |timed out |No database selected |PHP message: \[Fab\] )(?:(.*)(?:, client: )"\
 						 "(.*)(?:, server: )(.*)(?:, request: )(.*)(?:, upstream: )(.*)(?:, host: )(.*)|(.*))"
