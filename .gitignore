@@ -5,3 +5,7 @@ __pycache__/
 
 config.py
 config.pyc
+logs.spec
+
+dist
+build
