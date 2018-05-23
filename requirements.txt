@@ -1,0 +1,16 @@
+altgraph==0.15
+astroid==1.6.4
+colorama==0.3.9
+future==0.16.0
+isort==4.3.4
+lazy-object-proxy==1.3.1
+macholib==1.9
+mccabe==0.6.1
+pefile==2017.11.5
+pycups==1.9.73
+PyInstaller==3.3.1
+pylint==1.9.1
+sh==1.12.14
+six==1.11.0
+virtualenv==16.0.0
+wrapt==1.10.11
