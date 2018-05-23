@@ -258,7 +258,9 @@ def showSummary(summaryInfo):
 
 		for line in summaryInfo:
 			if line["totalErrors"] > 0:
-				print("| {:<30s}" . format(line["project"]) + " | {:^16d}" . format(line["differentErrors"]) + " | {:^16d}" . format(line["totalErrors"]) + " |")
+				print("| {:<30s}" . format(line["project"]) + 
+					  " | {:^16d}" . format(line["differentErrors"]) + 
+					  " | {:^16d}" . format(line["totalErrors"]) + " |")
 
 				# Calcul des totaux
 				globalTotal 	 += line["totalErrors"]
